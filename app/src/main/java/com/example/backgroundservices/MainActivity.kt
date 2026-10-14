@@ -19,6 +19,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusTextView: TextView
     private lateinit var btnStart: Button
 
+    private lateinit var btnLatihan: Button
+
     private val permissionsToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(
             Manifest.permission.ACTIVITY_RECOGNITION,
@@ -41,6 +43,7 @@ class MainActivity : AppCompatActivity() {
 
         statusTextView = findViewById(R.id.statusTextView)
         btnStart = findViewById(R.id.btnStart)
+        btnLatihan = findViewById(R.id.btnLatihan)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -59,8 +62,6 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
-
-        // Memanggil handleIntent saat aplikasi baru dibuka (Langkah 16)
         handleIntent(intent)
     }
 
@@ -82,7 +83,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Menangani aksi jika aplikasi di-resume dari notifikasi (Langkah 15)
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
