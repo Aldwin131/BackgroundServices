@@ -62,6 +62,21 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+
+        btnLatihan.setOnClickListener {
+            if (hasAllPermissions()) {
+                val serviceIntent = Intent(this, TrackerService::class.java)
+                serviceIntent.action = "ACTION_START_LATIHAN"
+                ContextCompat.startForegroundService(this, serviceIntent)
+                statusTextView.text = "Latihan Sedang Berjalan..."
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    permissionsToRequest,
+                    REQUEST_CODE_PERMISSIONS
+                )
+            }
+        }
         handleIntent(intent)
     }
 
