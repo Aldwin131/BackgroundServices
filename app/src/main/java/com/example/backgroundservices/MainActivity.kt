@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.CalendarContract
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -18,7 +19,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var statusTextView: TextView
     private lateinit var btnStart: Button
-
     private lateinit var btnLatihan: Button
 
     private val permissionsToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -55,11 +55,7 @@ class MainActivity : AppCompatActivity() {
             if (hasAllPermissions()) {
                 startTrackerService()
             } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    permissionsToRequest,
-                    REQUEST_CODE_PERMISSIONS
-                )
+                ActivityCompat.requestPermissions(this, permissionsToRequest, REQUEST_CODE_PERMISSIONS)
             }
         }
 
@@ -70,13 +66,10 @@ class MainActivity : AppCompatActivity() {
                 ContextCompat.startForegroundService(this, serviceIntent)
                 statusTextView.text = "Latihan Sedang Berjalan..."
             } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    permissionsToRequest,
-                    REQUEST_CODE_PERMISSIONS
-                )
+                ActivityCompat.requestPermissions(this, permissionsToRequest, REQUEST_CODE_PERMISSIONS)
             }
         }
+
         handleIntent(intent)
     }
 
@@ -96,6 +89,29 @@ class MainActivity : AppCompatActivity() {
         if (intent?.action == ACTION_SERVICE_STOPPED_JUMP) {
             statusTextView.text = "Background services sudah berhenti karena Anda melompat"
         }
+
+        else if (intent?.action == ACTION_LATIHAN_SELESAI) {
+            val totalLangkah = intent.getIntExtra("STEP_COUNT", 0)
+
+            statusTextView.text = "Latihan Selesai! Anda mencapai $totalLangkah langkah/lompatan."
+
+            // Buka aplikasi kalender
+            bukaKalender()
+        }
+    }
+
+    private fun bukaKalender() {
+        val calendarIntent = Intent(Intent.ACTION_INSERT).apply {
+            data = CalendarContract.Events.CONTENT_URI
+            putExtra(CalendarContract.Events.TITLE, "Latihan Fisik Selesai")
+            putExtra(CalendarContract.Events.DESCRIPTION, "Berhasil menyelesaikan latihan harian dari aplikasi Background Services.")
+        }
+
+        try {
+            startActivity(calendarIntent)
+        } catch (e: Exception) {
+            statusTextView.text = "Latihan Selesai! (Aplikasi Kalender tidak ditemukan di perangkat ini)"
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -106,6 +122,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object{
         const val ACTION_SERVICE_STOPPED_JUMP = "com.example.backgroundservices.ACTION_SERVICE_STOPPED_JUMP"
+        const val ACTION_LATIHAN_SELESAI = "com.example.backgroundservices.ACTION_LATIHAN_SELESAI" // Konstanta baru
         const val REQUEST_CODE_PERMISSIONS = 101
     }
 
